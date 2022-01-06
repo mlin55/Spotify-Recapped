@@ -1,6 +1,6 @@
 import { getTopArtists, getTopSongs, getTopGenres } from './controllers/spotifyapi.js';
 
-import SpotifyWebApi from 'spotify-web-api-node';'spotify-web-api-node';
+import SpotifyWebApi from 'spotify-web-api-node';
 import express from 'express';
 
 const scopes = [
@@ -26,8 +26,8 @@ const scopes = [
   ];
   
 var spotifyApi = new SpotifyWebApi({
-    clientId: '37dd68b8d2c545ecbf5a5c9b30346bc3',
-    clientSecret: 'ce7ca557e09f40119b78de68c2718d68',
+    clientId: process.env.CLIENT_ID,
+    clientSecret: process.env.CLIENT_SECRET,
     redirectUri: 'http://localhost:8888/callback'
 });
   
