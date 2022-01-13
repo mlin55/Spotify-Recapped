@@ -1,7 +1,7 @@
-import { getTopArtists, getTopSongs, getTopGenres } from './controllers/spotifyapi.js';
-
-import SpotifyWebApi from 'spotify-web-api-node';
-import express from 'express';
+var SpotifyWebApi = require('spotify-web-api-node');
+var express = require('express');
+require('dotenv').config();
+var cors = require('cors');
 
 const scopes = [
     'ugc-image-upload',
@@ -24,6 +24,8 @@ const scopes = [
     'user-follow-read',
     'user-follow-modify'
   ];
+
+console.log(process.env.CLIENT_ID);
   
 var spotifyApi = new SpotifyWebApi({
     clientId: process.env.CLIENT_ID,
@@ -32,6 +34,8 @@ var spotifyApi = new SpotifyWebApi({
 });
   
 const app = express();
+app.use(cors());
+
 
 app.get('/login', (req, res) => {
     res.redirect(spotifyApi.createAuthorizeURL(scopes));
@@ -89,23 +93,42 @@ app.get('/info', async (req, res) => {
         mediumTerm: await getTopArtists('medium_term', '50', spotifyApi),
         longTerm: await getTopArtists('long_term', '50', spotifyApi),
     };
+    console.log("RETRIEVED TOP ARTISTS");
 
     const topSongs = {
         shortTerm: await getTopSongs('short_term', '50', spotifyApi),
         mediumTerm: await getTopSongs('medium_term', '50', spotifyApi),
         longTerm: await getTopSongs('long_term', '50', spotifyApi),
     }
+    console.log("RETRIEVED TOP SONGS");
 
     const topGenres = {
         shortTerm: getTopGenres(topArtists.shortTerm),
         mediumTerm: getTopGenres(topArtists.mediumTerm),
         longTerm: getTopGenres(topArtists.longTerm),
     }
+    console.log("RETRIEVED TOP GENRES");
+    res.send({
+        userProfile: userProfile,
+        topArtists: topArtists,
+        topSongs: topSongs,
+        topGenres: topGenres
+    });
+
+    return {
+        userProfile: userProfile,
+        topArtists: topArtists,
+        topSongs: topSongs,
+        topGenres: topGenres
+    };
 });
 
+/*
 app.get('/topartists', async (req, res) => {
     res.send(await getTopArtists('short_term', '20', spotifyApi));
 })
+*/
+
 
 
 app.listen(8888, () =>
@@ -113,3 +136,68 @@ app.listen(8888, () =>
         'HTTP Server up. Now go to http://localhost:8888/login in your browser.'
     )
 );
+
+
+
+const getTopArtists = async (timeRange, lim, spotifyApi) => {
+    const data = await spotifyApi.getMyTopArtists({time_range: timeRange, limit: lim});
+    const artists = data.body.items;
+    const parsedArtistData = [];
+    for (let artist of artists) {
+        parsedArtistData.push({
+            name: artist.name,
+            images: artist.images,
+            genres: artist.genres,
+            popularity: artist.popularity
+        });
+    }
+    return parsedArtistData;
+}
+
+const getTopSongs = async (timeRange, lim, spotifyApi) => {
+    const data = await spotifyApi.getMyTopTracks({time_range: timeRange, limit: lim});
+    const songs = data.body.items;
+    const parsedSongData = [];
+    for (let song of songs) {
+        const artists = []
+        for (let artist of song.artists) {
+            artists.push(artist.name);
+        }
+        parsedSongData.push({
+            name: song.name,
+            artists: artists,
+            popularity: song.popularity,
+            album: song.album.name
+        });
+    }
+    return parsedSongData;
+}
+
+const getTopGenres = (topArtists) => {
+      /*
+          each genre is given a weighted score and ranked based on the user's top artists
+          the weighting is: 100, 98, 96 ... 2 points for each rank from 1-50
+          for example, if the user's top artist is Taylor Swift, then pop gets 100 points because Swift is ranked first
+      */
+    const genreToScore = new Map();
+    let points = 100;
+    for (let artist of topArtists) {
+          for (let genre of artist.genres) {
+              if (genreToScore.has(genre)) {
+                  genreToScore.set(genre, genreToScore.get(genre) + points);
+              } else {
+                  genreToScore.set(genre, points);
+              }
+          }
+          points -= 2;
+    }
+    const rankedGenres = [];
+    for (const [genre, score] of genreToScore.entries()) {
+        let idx = 0;
+        while (idx < rankedGenres.length && genreToScore.get(rankedGenres[idx]) < score) {
+            idx++;
+        }
+        rankedGenres.splice(idx, 0, genre);
+    }
+    return rankedGenres;
+}
