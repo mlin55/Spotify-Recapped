@@ -15,18 +15,6 @@
     width: 50%;
 }
 
-#dropdown-wrapper {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-}
-
-.dropdown {
-    margin: 5%;
-
-}
-
 #footer {
     position: fixed;
     bottom: 0;
@@ -36,4 +24,61 @@
     text-align: center;
 
     background-color: rgb(77, 77, 77);
+}
+
+/* Main Page CSS */
+#main-page-background {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    height: 100vh;
+
+    color: white;
+
+    background-color: black;
+}
+
+#dropdown-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+}
+
+.dropdown {
+    margin: 5%;
+
+}
+
+.table {
+    top: 30%;
+
+    background-image: linear-gradient(-33deg, #166d3b 0%, #000000 74%);
+}
+
+.image {
+    width: 15%;
+}
+
+/* Song Table CSS */
+#padding-column {
+    width: 2%;
+}
+
+#rank-column {
+    width: 5%;
+}
+
+#song-column {
+    width: 50%;
+}
+
+#artists-column {
+    width: 19.5%;
+}
+
+#album-column {
+    width: 19.5%;
 }

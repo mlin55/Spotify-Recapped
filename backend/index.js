@@ -93,21 +93,18 @@ app.get('/info', async (req, res) => {
         mediumTerm: await getTopArtists('medium_term', '50', spotifyApi),
         longTerm: await getTopArtists('long_term', '50', spotifyApi),
     };
-    console.log("RETRIEVED TOP ARTISTS");
 
     const topSongs = {
         shortTerm: await getTopSongs('short_term', '50', spotifyApi),
         mediumTerm: await getTopSongs('medium_term', '50', spotifyApi),
         longTerm: await getTopSongs('long_term', '50', spotifyApi),
     }
-    console.log("RETRIEVED TOP SONGS");
 
     const topGenres = {
         shortTerm: getTopGenres(topArtists.shortTerm),
         mediumTerm: getTopGenres(topArtists.mediumTerm),
         longTerm: getTopGenres(topArtists.longTerm),
     }
-    console.log("RETRIEVED TOP GENRES");
     res.send({
         userProfile: userProfile,
         topArtists: topArtists,
@@ -123,11 +120,13 @@ app.get('/info', async (req, res) => {
     };
 });
 
-/*
-app.get('/topartists', async (req, res) => {
-    res.send(await getTopArtists('short_term', '20', spotifyApi));
+
+app.get('/topsongs', async (req, res) => {
+    let data = await spotifyApi.getMyTopTracks({time_range: 'short_term', limit: '50'});
+    //console.log(data.body.items[0].album.images);
+    res.send(data);
 })
-*/
+
 
 
 
@@ -167,7 +166,8 @@ const getTopSongs = async (timeRange, lim, spotifyApi) => {
             name: song.name,
             artists: artists,
             popularity: song.popularity,
-            album: song.album.name
+            album: song.album.name,
+            image: song.album.images[0]
         });
     }
     return parsedSongData;
