@@ -94,7 +94,7 @@ export default () => {
         <div id='body'>
           <div id='main-page-background'>
             <Icons />
-            <h1 style={{marginTop: '4%', marginBottom: '2%'}}>Welcome to Spotify Recapped,{profile != null && ', ' + profile.body.display_name}</h1>
+            <h1 style={{marginTop: '4%', marginBottom: '2%'}}>Welcome to Spotify Recapped{profile != null && ', ' + profile.body.display_name}</h1>
             <h4>Use the dropdowns below to display data from different categories and time periods.</h4>
             <div id='dropdown-wrapper'>
               <DropdownButton className='dropdown' variant='secondary' size='lg' title='Category'>
