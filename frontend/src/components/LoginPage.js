@@ -1,6 +1,8 @@
-import { Button } from 'react-bootstrap';
+import Icons from './Icons';
 
 export default () => {
+    console.log(process.env.REACT_APP_BACKEND_URL);
+
     return(
         <div className="background" style={{    
             display: 'flex',
@@ -8,14 +10,16 @@ export default () => {
             justifyContent: 'center'
         }}>
           <div id='wrapper'>
-            <h1>Statify</h1>
-            <h4>Welcome to Statify! Here you can view your top most played songs, artists, and genres from various periods of time. Think of it as a Spotify Wrapped that you can access at any time during the year. Your listening data remains 100% private: we don't save any of it. Just log in with the button below and you're all set!</h4>
-            <Button variant='Secondary' className="btn-secondary">
+            <Icons />
+            <h1 style={{marginBottom: '3%'}}>Statify</h1>
+            <h4>Welcome to Statify! Here you can view your top most played songs, artists, and genres from various periods of time. Additionally, you can compare how your listening preferences match up with the rest of Spotify's userbase. Think of it as a Spotify Wrapped that you can access at any time during the year. Don't worry: your listening data remains 100% private and none of it is saved. Just login to get started!</h4>
+            <a class="btn btn-secondary" href={process.env.REACT_APP_BACKEND_URL} role="button" id='login-btn'>
               Login
-            </Button>
+            </a>
+            <p style={{marginTop: '5%'}}>NOTE: Currently the Spotify developer dashboard only allows up to 25 unique users per app, so if this doesn't work it's most likely because that quota has been filled. An extension request has been sent, but until Spotify responds there's nothing that can be done. Sorry for the inconvenience :(</p>
           </div>
           <div id='footer'>
-            <p>Made by Matthew Lin, © 2022. DISCLAIMER: This project is not affiliated with Spotify in any way.</p>
+            <p>Made by Matthew Lin, © 2022. Special thanks to Spotify for providing the API necessary to build this project.</p>
           </div>
         </div>
     );

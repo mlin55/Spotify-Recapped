@@ -30,7 +30,7 @@ console.log(process.env.CLIENT_ID);
 var spotifyApi = new SpotifyWebApi({
     clientId: process.env.CLIENT_ID,
     clientSecret: process.env.CLIENT_SECRET,
-    redirectUri: 'http://localhost:8888/callback'
+    redirectUri: process.env.BACKEND_URL + '/callback'
 });
   
 const app = express();
@@ -68,7 +68,6 @@ app.get('/callback', (req, res) => {
             console.log(
                 `Sucessfully retreived access token. Expires in ${expires_in} s.`
             );
-            res.send('Success! You can now close the window.');
 
             setInterval(async () => {
                 const data = await spotifyApi.refreshAccessToken();
@@ -78,33 +77,40 @@ app.get('/callback', (req, res) => {
                 console.log('access_token:', access_token);
                 spotifyApi.setAccessToken(access_token);
             }, expires_in / 2 * 1000);
+
+            res.redirect(process.env.FRONTEND_URL);
         })
         .catch(error => {
             console.error('Error getting Tokens:', error);
             res.send(`Error getting Tokens: ${error}`);
         });
+
 });
 
 app.get('/info', async (req, res) => {
     const userProfile = await spotifyApi.getMe();
 
+    
     const topArtists = {
         shortTerm: await getTopArtists('short_term', '50', spotifyApi),
         mediumTerm: await getTopArtists('medium_term', '50', spotifyApi),
         longTerm: await getTopArtists('long_term', '50', spotifyApi),
     };
-
+    
+    
+    
     const topSongs = {
         shortTerm: await getTopSongs('short_term', '50', spotifyApi),
         mediumTerm: await getTopSongs('medium_term', '50', spotifyApi),
         longTerm: await getTopSongs('long_term', '50', spotifyApi),
     }
-
+    
     const topGenres = {
         shortTerm: getTopGenres(topArtists.shortTerm),
         mediumTerm: getTopGenres(topArtists.mediumTerm),
         longTerm: getTopGenres(topArtists.longTerm),
     }
+    
     res.send({
         userProfile: userProfile,
         topArtists: topArtists,
@@ -112,27 +118,27 @@ app.get('/info', async (req, res) => {
         topGenres: topGenres
     });
 
+
+    //console.log(userProfile);
+    /*
     return {
         userProfile: userProfile,
         topArtists: topArtists,
         topSongs: topSongs,
         topGenres: topGenres
     };
+    */
 });
 
-
-app.get('/topsongs', async (req, res) => {
-    let data = await spotifyApi.getMyTopTracks({time_range: 'short_term', limit: '50'});
-    //console.log(data.body.items[0].album.images);
+app.get('/test', async (req, res) => {
+    const data = await spotifyApi.getMyTopTracks({time_range: 'short_term', limit: '50'});
     res.send(data);
-})
-
-
+});
 
 
 app.listen(8888, () =>
     console.log(
-        'HTTP Server up. Now go to http://localhost:8888/login in your browser.'
+        "HTTP Server up. Now go to " + process.env.BACKEND_URL +"/login in your browser." 
     )
 );
 
@@ -141,13 +147,28 @@ app.listen(8888, () =>
 const getTopArtists = async (timeRange, lim, spotifyApi) => {
     const data = await spotifyApi.getMyTopArtists({time_range: timeRange, limit: lim});
     const artists = data.body.items;
+
+    const sortedByPop = [];
+    for (let artist of artists) {
+        sortedByPop.push(artist);
+    }
+    sortedByPop.sort((a, b) => a.popularity > b.popularity ? -1 : 1);
+    const map = new Map();
+    for (let i = 0; i < sortedByPop.length; i++) {
+        map.set(sortedByPop[i].name, i + 1);
+    }
+
     const parsedArtistData = [];
     for (let artist of artists) {
+        for (let i = 0; i < artist.genres.length; i++) {
+            artist.genres[i] = artist.genres[i].slice(0, 1).toUpperCase() + artist.genres[i].slice(1);
+        }
+
         parsedArtistData.push({
             name: artist.name,
             images: artist.images,
             genres: artist.genres,
-            popularity: artist.popularity
+            popularity: map.get(artist.name)
         });
     }
     return parsedArtistData;
@@ -156,6 +177,17 @@ const getTopArtists = async (timeRange, lim, spotifyApi) => {
 const getTopSongs = async (timeRange, lim, spotifyApi) => {
     const data = await spotifyApi.getMyTopTracks({time_range: timeRange, limit: lim});
     const songs = data.body.items;
+
+    const sortedByPop = [];
+    for (let song of songs) {
+        sortedByPop.push(song);
+    }
+    sortedByPop.sort((a, b) => a.popularity > b.popularity ? -1 : 1);
+    const map = new Map();
+    for (let i = 0; i < sortedByPop.length; i++) {
+        map.set(sortedByPop[i].name, i + 1);
+    }
+
     const parsedSongData = [];
     for (let song of songs) {
         const artists = []
@@ -165,7 +197,7 @@ const getTopSongs = async (timeRange, lim, spotifyApi) => {
         parsedSongData.push({
             name: song.name,
             artists: artists,
-            popularity: song.popularity,
+            popularity: map.get(song.name),
             album: song.album.name,
             image: song.album.images[0]
         });
