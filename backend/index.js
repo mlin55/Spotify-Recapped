@@ -24,8 +24,6 @@ const scopes = [
     'user-follow-read',
     'user-follow-modify'
   ];
-
-console.log(process.env.CLIENT_ID);
   
 var spotifyApi = new SpotifyWebApi({
     clientId: process.env.CLIENT_ID,
@@ -36,6 +34,9 @@ var spotifyApi = new SpotifyWebApi({
 const app = express();
 app.use(cors());
 
+app.get('/', (req, res) => {
+    res.send("Welcome to the Spotify Recapped backend.");
+})
 
 app.get('/login', (req, res) => {
     res.redirect(spotifyApi.createAuthorizeURL(scopes));
@@ -62,19 +63,10 @@ app.get('/callback', (req, res) => {
             spotifyApi.setAccessToken(access_token);
             spotifyApi.setRefreshToken(refresh_token);
 
-            console.log('access_token:', access_token);
-            console.log('refresh_token:', refresh_token);
-
-            console.log(
-                `Sucessfully retreived access token. Expires in ${expires_in} s.`
-            );
-
             setInterval(async () => {
                 const data = await spotifyApi.refreshAccessToken();
                 const access_token = data.body['access_token'];
 
-                console.log('The access token has been refreshed!');
-                console.log('access_token:', access_token);
                 spotifyApi.setAccessToken(access_token);
             }, expires_in / 2 * 1000);
 
@@ -118,16 +110,6 @@ app.get('/info', async (req, res) => {
         topGenres: topGenres
     });
 
-
-    //console.log(userProfile);
-    /*
-    return {
-        userProfile: userProfile,
-        topArtists: topArtists,
-        topSongs: topSongs,
-        topGenres: topGenres
-    };
-    */
 });
 
 app.get('/test', async (req, res) => {
@@ -136,7 +118,7 @@ app.get('/test', async (req, res) => {
 });
 
 
-app.listen(8888, () =>
+app.listen(process.env.PORT, () =>
     console.log(
         "HTTP Server up. Now go to " + process.env.BACKEND_URL +"/login in your browser." 
     )

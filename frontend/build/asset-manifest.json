@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/static/css/main.ffdab206.css",
+    "main.js": "/static/js/main.eab75eef.js",
+    "static/media/question-icon.png": "/static/media/question-icon.22c38de21547aab05ad9.png",
+    "static/media/spotify-icon.png": "/static/media/spotify-icon.8db421afdace023853d1.png",
+    "index.html": "/index.html",
+    "main.ffdab206.css.map": "/static/css/main.ffdab206.css.map",
+    "main.eab75eef.js.map": "/static/js/main.eab75eef.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.ffdab206.css",
+    "static/js/main.eab75eef.js"
+  ]
+}

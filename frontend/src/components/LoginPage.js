@@ -11,8 +11,8 @@ export default () => {
         }}>
           <div id='wrapper'>
             <Icons />
-            <h1 style={{marginBottom: '3%'}}>Statify</h1>
-            <h4>Welcome to Statify! Here you can view your top most played songs, artists, and genres from various periods of time. Additionally, you can compare how your listening preferences match up with the rest of Spotify's userbase. Think of it as a Spotify Wrapped that you can access at any time during the year. Don't worry: your listening data remains 100% private and none of it is saved. Just login to get started!</h4>
+            <h1 style={{marginBottom: '3%'}}>Spotify Recapped</h1>
+            <h4>Welcome to Spotify Recapped! Here you can view your top most played songs, artists, and genres from various periods of time. Additionally, you can compare how your listening preferences match up with the rest of Spotify's userbase. Think of it as a Spotify Wrapped that you can access at any time during the year (hence the name). Don't worry: your listening data remains 100% private and none of it is saved. Just login to get started!</h4>
             <a class="btn btn-secondary" href={process.env.REACT_APP_BACKEND_URL} role="button" id='login-btn'>
               Login
             </a>
